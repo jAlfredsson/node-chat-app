@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message')
+const {generateMessage, generateLocationMessage} = require('./utils/message')
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '../public');
 var app = express()
@@ -19,7 +19,7 @@ io.on('connection', (socket) => {
 
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
 
-
+// https://google.com/maps?q=lat,lng
   socket.on('createMessage', (message, callback) => {
     console.log('createMessage', message);
     io.emit('newMessage', generateMessage(message.from, message.text));
@@ -30,6 +30,10 @@ io.on('connection', (socket) => {
     //   createdAt: new Date().getTime()
     // })
   })
+
+socket.on('createLocationMessage', (coords) => {
+  io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+});
 
   socket.on('disconnect', () => {
     console.log('User was disconnected');
